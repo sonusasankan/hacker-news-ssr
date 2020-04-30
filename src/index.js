@@ -6,6 +6,7 @@ import createStore from './helpers/createStore';
 import { matchRoutes } from 'react-router-config';
 import Routes from './client/Routes';
 
+const port = process.env.PORT || 3000;
 
 const app = express();
 
