@@ -73,7 +73,7 @@ class NewsList extends Component {
     return (
       <main>
         <ul>{this.renderNews()}</ul>
-        <button onClick={() => this.props.fetchNews(2)}>Next page</button>
+        <button onClick={() => this.props.fetchNews(2)}>Next page </button>
       </main>
     );
   }
