@@ -3,10 +3,18 @@ import axios from 'axios';
 
 export const FETCH_NEWS = 'fetch-news';
 
-export const fetchNews = () => async dispatch => {
-    const res = await axios.get('https://hn.algolia.com/api/v1/search?tags=front_page&page=1')
+export const fetchNews = (page) => async dispatch => {
+    const res = await axios({
+        method: 'get',
+        url: 'http://hn.algolia.com/api/v1/search',
+        params: {
+        //   tags: 'front_page',
+          page: page,
+        },
+      })
     dispatch({
         type: FETCH_NEWS,
         payload: res
     })
+    console.log(true)
 }

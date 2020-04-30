@@ -122,7 +122,7 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.fetchNews = exports.FETCH_NEWS = undefined;
 
-var _axios = __webpack_require__(14);
+var _axios = __webpack_require__(15);
 
 var _axios2 = _interopRequireDefault(_axios);
 
@@ -132,7 +132,7 @@ function _asyncToGenerator(fn) { return function () { var gen = fn.apply(this, a
 
 var FETCH_NEWS = exports.FETCH_NEWS = 'fetch-news';
 
-var fetchNews = exports.fetchNews = function fetchNews() {
+var fetchNews = exports.fetchNews = function fetchNews(page) {
     return function () {
         var _ref = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee(dispatch) {
             var res;
@@ -141,7 +141,14 @@ var fetchNews = exports.fetchNews = function fetchNews() {
                     switch (_context.prev = _context.next) {
                         case 0:
                             _context.next = 2;
-                            return _axios2.default.get('https://hn.algolia.com/api/v1/search?tags=front_page&page=1');
+                            return (0, _axios2.default)({
+                                method: 'get',
+                                url: 'http://hn.algolia.com/api/v1/search',
+                                params: {
+                                    //   tags: 'front_page',
+                                    page: page
+                                }
+                            });
 
                         case 2:
                             res = _context.sent;
@@ -150,8 +157,9 @@ var fetchNews = exports.fetchNews = function fetchNews() {
                                 type: FETCH_NEWS,
                                 payload: res
                             });
+                            console.log(true);
 
-                        case 4:
+                        case 5:
                         case 'end':
                             return _context.stop();
                     }
@@ -194,7 +202,7 @@ var _renderer = __webpack_require__(9);
 
 var _renderer2 = _interopRequireDefault(_renderer);
 
-var _createStore = __webpack_require__(16);
+var _createStore = __webpack_require__(17);
 
 var _createStore2 = _interopRequireDefault(_createStore);
 
@@ -267,7 +275,7 @@ var _reactRedux = __webpack_require__(2);
 
 var _reactRouterConfig = __webpack_require__(4);
 
-var _serializeJavascript = __webpack_require__(15);
+var _serializeJavascript = __webpack_require__(16);
 
 var _serializeJavascript2 = _interopRequireDefault(_serializeJavascript);
 
@@ -289,7 +297,7 @@ exports.default = function (req, store) {
         )
     ));
 
-    return '\n        <html>\n            <head></head>\n            <body>\n                <div id="root">' + content + '</div>\n                <script>\n                    window.INITIAL_STATE = ' + (0, _serializeJavascript2.default)(store.getState()) + ';\n                </script>\n                <script src="bundle.js"></script>\n            </body>\n        </html>\n        ';
+    return '\n        <html>\n            <head>\n            <meta name="viewport" content="width=device-width, initial-scale=1.0">\n            </head>\n              <body>\n                <div id="root">' + content + '</div>\n                <script>\n                    window.INITIAL_STATE = ' + (0, _serializeJavascript2.default)(store.getState()) + ';\n                </script>\n                <script src="bundle.js"></script>\n            </body>\n        </html>\n        ';
 };
 
 /***/ }),
@@ -323,15 +331,19 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 var Home = function Home() {
     return _react2.default.createElement(
-        'div',
+        'main',
         null,
-        'I\'m the Best Home component',
         _react2.default.createElement(
-            'button',
-            { onClick: function onClick() {
-                    return console.log('clicked');
-                } },
-            'Click me'
+            'section',
+            null,
+            'I\'m the Best Home component',
+            _react2.default.createElement(
+                'button',
+                { onClick: function onClick() {
+                        return console.log('clicked');
+                    } },
+                'Click me'
+            )
         )
     );
 };
@@ -357,6 +369,10 @@ var _react = __webpack_require__(0);
 var _react2 = _interopRequireDefault(_react);
 
 var _reactRedux = __webpack_require__(2);
+
+var _moment = __webpack_require__(14);
+
+var _moment2 = _interopRequireDefault(_moment);
 
 var _actions = __webpack_require__(3);
 
@@ -418,41 +434,85 @@ var NewsList = function (_Component) {
       }
     }
   }, {
+    key: "getDomain",
+    value: function getDomain(url) {
+      var domain = '';
+      if (typeof url === 'string') {
+        return domain = url.replace('http://', '').replace('https://', '').replace('www.', '').split(/[/?#]/)[0];
+      }
+    }
+  }, {
     key: "renderNews",
     value: function renderNews() {
       var _this2 = this;
 
-      return this.props.news.map(function (item) {
+      return this.props.news.filter(function (item) {
+        return item.title !== null && item.url !== null && item.title !== '';
+      }).map(function (item) {
         return _react2.default.createElement(
           "li",
           { key: item.objectID },
           _react2.default.createElement(
             "span",
-            {
-              style: {
-                color: _this2.state.upvotedItems !== undefined && _this2.state.upvotedItems.includes(item.objectID) ? "orange" : "black"
-              },
-              onClick: function onClick() {
-                return _this2.upvote(item);
-              },
-              className: "hn-upvote-btn" },
-            "up"
+            { className: "color-dark" },
+            item.num_comments !== null ? item.num_comments : 0
           ),
-          item.title
+          _react2.default.createElement(
+            "span",
+            { className: "color-dark" },
+            item.points
+          ),
+          _react2.default.createElement("span", {
+            style: {
+              borderBottomColor: _this2.state.upvotedItems !== undefined && _this2.state.upvotedItems.includes(item.objectID) ? "#ff6600" : "rgb(202, 202, 201)"
+            },
+            onClick: function onClick() {
+              return _this2.upvote(item);
+            },
+            className: "hn-upvote-btn" }),
+          _react2.default.createElement(
+            "a",
+            { className: "color-dark", href: item.url },
+            item.title,
+            _react2.default.createElement(
+              "span",
+              null,
+              "(",
+              _this2.getDomain(item.url),
+              ")"
+            )
+          ),
+          "by",
+          _react2.default.createElement(
+            "span",
+            { className: "color-dark" },
+            item._highlightResult.author.value
+          ),
+          (0, _moment2.default)(Date.now()).diff((0, _moment2.default)(item.created_at), 'days'),
+          ' ',
+          "days ago"
         );
       });
     }
   }, {
     key: "render",
     value: function render() {
+      var _this3 = this;
+
       return _react2.default.createElement(
-        "div",
+        "main",
         null,
-        "Hellooo",
         _react2.default.createElement(
           "ul",
           null,
           this.renderNews()
+        ),
+        _react2.default.createElement(
+          "button",
+          { onClick: function onClick() {
+              return _this3.props.fetchNews(2);
+            } },
+          "Next page"
         )
       );
     }
@@ -478,16 +538,22 @@ exports.default = (0, _reactRedux.connect)(mapStateToProps, { fetchNews: _action
 /* 14 */
 /***/ (function(module, exports) {
 
-module.exports = require("axios");
+module.exports = require("moment");
 
 /***/ }),
 /* 15 */
 /***/ (function(module, exports) {
 
-module.exports = require("serialize-javascript");
+module.exports = require("axios");
 
 /***/ }),
 /* 16 */
+/***/ (function(module, exports) {
+
+module.exports = require("serialize-javascript");
+
+/***/ }),
+/* 17 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -499,11 +565,11 @@ Object.defineProperty(exports, "__esModule", {
 
 var _redux = __webpack_require__(5);
 
-var _reduxThunk = __webpack_require__(17);
+var _reduxThunk = __webpack_require__(18);
 
 var _reduxThunk2 = _interopRequireDefault(_reduxThunk);
 
-var _reducers = __webpack_require__(18);
+var _reducers = __webpack_require__(19);
 
 var _reducers2 = _interopRequireDefault(_reducers);
 
@@ -516,13 +582,13 @@ exports.default = function () {
 };
 
 /***/ }),
-/* 17 */
+/* 18 */
 /***/ (function(module, exports) {
 
 module.exports = require("redux-thunk");
 
 /***/ }),
-/* 18 */
+/* 19 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -534,7 +600,7 @@ Object.defineProperty(exports, "__esModule", {
 
 var _redux = __webpack_require__(5);
 
-var _newsReducers = __webpack_require__(19);
+var _newsReducers = __webpack_require__(20);
 
 var _newsReducers2 = _interopRequireDefault(_newsReducers);
 
@@ -545,7 +611,7 @@ exports.default = (0, _redux.combineReducers)({
 });
 
 /***/ }),
-/* 19 */
+/* 20 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";

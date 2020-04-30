@@ -1,5 +1,6 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
+import moment from 'moment';
 import { fetchNews } from "../actions";
 
 class NewsList extends Component {
@@ -35,20 +36,34 @@ class NewsList extends Component {
       }
     }
   }
-
+ getDomain(url){
+  var domain = '';
+  if (typeof url === 'string') {
+      return domain = url
+      .replace('http://', '')
+      .replace('https://', '')
+      .replace('www.', '')
+      .split(/[/?#]/)[0];
+  }
+ }
   renderNews() {
-    return this.props.news.map((item) => {
+    return this.props.news.filter(item => item.title !== null && item.url !== null && item.title !== '').map((item) => {
       return (
         <li key={item.objectID}>
+          <span className="color-dark">{item.num_comments !== null ? item.num_comments: 0}</span>
+          <span className="color-dark">{item.points}</span>
           <span
             style={{
-              color: this.state.upvotedItems !== undefined && this.state.upvotedItems.includes(item.objectID) ? "orange" : "black",
+              borderBottomColor: this.state.upvotedItems !== undefined && this.state.upvotedItems.includes(item.objectID) ? "#ff6600" : "rgb(202, 202, 201)",
             }}
             onClick={() => this.upvote(item)}
             className="hn-upvote-btn">
-            up
           </span>
-          {item.title}
+          <a className="color-dark" href={item.url}>{item.title}<span>({this.getDomain(item.url)})</span></a>
+           by
+          <span className="color-dark">{item._highlightResult.author.value}</span>
+          {moment(Date.now()).diff(moment(item.created_at), 'days')}{' '}
+          days ago
         </li>
       );
     });
@@ -56,10 +71,10 @@ class NewsList extends Component {
 
   render() {
     return (
-      <div>
-        Hellooo
+      <main>
         <ul>{this.renderNews()}</ul>
-      </div>
+        <button onClick={() => this.props.fetchNews(2)}>Next page</button>
+      </main>
     );
   }
 }

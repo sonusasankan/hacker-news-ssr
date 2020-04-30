@@ -10,6 +10,7 @@ import Routes from "./Routes";
 import reducers from './reducers';
 import { renderRoutes } from 'react-router-config';
 import './styles/index.css';
+import { Header } from './components/Header';
 
 const store = createStore(reducers, window.INITIAL_STATE, applyMiddleware(thunk));
 
@@ -17,6 +18,7 @@ ReactDOM.hydrate(
   <Provider store={store}>
     <BrowserRouter>
       <div>
+        <Header/>
         { renderRoutes(Routes)}
       </div>
     </BrowserRouter>
