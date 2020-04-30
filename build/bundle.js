@@ -60,7 +60,7 @@
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 5);
+/******/ 	return __webpack_require__(__webpack_require__.s = 6);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -71,9 +71,38 @@ module.exports = require("react");
 
 /***/ }),
 /* 1 */
-/***/ (function(module, exports) {
+/***/ (function(module, exports, __webpack_require__) {
 
-module.exports = require("react-router-dom");
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+var _react = __webpack_require__(0);
+
+var _react2 = _interopRequireDefault(_react);
+
+var _Home = __webpack_require__(12);
+
+var _Home2 = _interopRequireDefault(_Home);
+
+var _NewsList = __webpack_require__(13);
+
+var _NewsList2 = _interopRequireDefault(_NewsList);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+exports.default = [{
+    path: "/",
+    component: _Home2.default,
+    exact: true
+}, {
+    loadData: _NewsList.loadData,
+    path: "/news",
+    component: _NewsList2.default
+}];
 
 /***/ }),
 /* 2 */
@@ -93,7 +122,7 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.fetchNews = exports.FETCH_NEWS = undefined;
 
-var _axios = __webpack_require__(13);
+var _axios = __webpack_require__(14);
 
 var _axios2 = _interopRequireDefault(_axios);
 
@@ -112,7 +141,7 @@ var fetchNews = exports.fetchNews = function fetchNews() {
                     switch (_context.prev = _context.next) {
                         case 0:
                             _context.next = 2;
-                            return _axios2.default.get('http://hn.algolia.com/api/v1/search?tags=front_page&page=1');
+                            return _axios2.default.get('https://hn.algolia.com/api/v1/search?tags=front_page&page=1');
 
                         case 2:
                             res = _context.sent;
@@ -140,28 +169,40 @@ var fetchNews = exports.fetchNews = function fetchNews() {
 /* 4 */
 /***/ (function(module, exports) {
 
-module.exports = require("redux");
+module.exports = require("react-router-config");
 
 /***/ }),
 /* 5 */
+/***/ (function(module, exports) {
+
+module.exports = require("redux");
+
+/***/ }),
+/* 6 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
-__webpack_require__(6);
+__webpack_require__(7);
 
-var _express = __webpack_require__(7);
+var _express = __webpack_require__(8);
 
 var _express2 = _interopRequireDefault(_express);
 
-var _renderer = __webpack_require__(8);
+var _renderer = __webpack_require__(9);
 
 var _renderer2 = _interopRequireDefault(_renderer);
 
-var _createStore = __webpack_require__(14);
+var _createStore = __webpack_require__(16);
 
 var _createStore2 = _interopRequireDefault(_createStore);
+
+var _reactRouterConfig = __webpack_require__(4);
+
+var _Routes = __webpack_require__(1);
+
+var _Routes2 = _interopRequireDefault(_Routes);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -170,29 +211,37 @@ var app = (0, _express2.default)();
 app.use(_express2.default.static('public'));
 app.get('*', function (req, res) {
 
-    var store = (0, _createStore2.default)();
+  var store = (0, _createStore2.default)();
 
+  var promises = (0, _reactRouterConfig.matchRoutes)(_Routes2.default, req.path).map(function (_ref) {
+    var route = _ref.route;
+
+    return route.loadData ? route.loadData(store) : null;
+  });
+
+  Promise.all(promises).then(function () {
     res.send((0, _renderer2.default)(req, store));
+  });
 });
 
 app.listen(3000, function () {
-    console.log('Listening on port 3000');
+  console.log('Listening on port 3000');
 });
-
-/***/ }),
-/* 6 */
-/***/ (function(module, exports) {
-
-module.exports = require("babel-polyfill");
 
 /***/ }),
 /* 7 */
 /***/ (function(module, exports) {
 
-module.exports = require("express");
+module.exports = require("babel-polyfill");
 
 /***/ }),
 /* 8 */
+/***/ (function(module, exports) {
+
+module.exports = require("express");
+
+/***/ }),
+/* 9 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -206,15 +255,21 @@ var _react = __webpack_require__(0);
 
 var _react2 = _interopRequireDefault(_react);
 
-var _server = __webpack_require__(9);
+var _server = __webpack_require__(10);
 
-var _reactRouterDom = __webpack_require__(1);
+var _reactRouterDom = __webpack_require__(11);
 
-var _Routes = __webpack_require__(10);
+var _Routes = __webpack_require__(1);
 
 var _Routes2 = _interopRequireDefault(_Routes);
 
 var _reactRedux = __webpack_require__(2);
+
+var _reactRouterConfig = __webpack_require__(4);
+
+var _serializeJavascript = __webpack_require__(15);
+
+var _serializeJavascript2 = _interopRequireDefault(_serializeJavascript);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -226,57 +281,31 @@ exports.default = function (req, store) {
         _react2.default.createElement(
             _reactRouterDom.StaticRouter,
             { location: req.path, context: {} },
-            _react2.default.createElement(_Routes2.default, null)
+            _react2.default.createElement(
+                'div',
+                null,
+                (0, _reactRouterConfig.renderRoutes)(_Routes2.default)
+            )
         )
     ));
 
-    return '\n        <html>\n            <head></head>\n            <body>\n                <div id="root">' + content + '</div>\n                <script src="bundle.js"></script>\n            </body>\n        </html>\n        ';
+    return '\n        <html>\n            <head></head>\n            <body>\n                <div id="root">' + content + '</div>\n                <script>\n                    window.INITIAL_STATE = ' + (0, _serializeJavascript2.default)(store.getState()) + ';\n                </script>\n                <script src="bundle.js"></script>\n            </body>\n        </html>\n        ';
 };
 
 /***/ }),
-/* 9 */
+/* 10 */
 /***/ (function(module, exports) {
 
 module.exports = require("react-dom/server");
 
 /***/ }),
-/* 10 */
-/***/ (function(module, exports, __webpack_require__) {
+/* 11 */
+/***/ (function(module, exports) {
 
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-    value: true
-});
-
-var _react = __webpack_require__(0);
-
-var _react2 = _interopRequireDefault(_react);
-
-var _reactRouterDom = __webpack_require__(1);
-
-var _Home = __webpack_require__(11);
-
-var _Home2 = _interopRequireDefault(_Home);
-
-var _NewsList = __webpack_require__(12);
-
-var _NewsList2 = _interopRequireDefault(_NewsList);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-exports.default = function () {
-    return _react2.default.createElement(
-        'div',
-        null,
-        _react2.default.createElement(_reactRouterDom.Route, { exact: true, path: '/', component: _Home2.default }),
-        _react2.default.createElement(_reactRouterDom.Route, { exact: true, path: '/news', component: _NewsList2.default })
-    );
-};
+module.exports = require("react-router-dom");
 
 /***/ }),
-/* 11 */
+/* 12 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -310,15 +339,16 @@ var Home = function Home() {
 exports.default = Home;
 
 /***/ }),
-/* 12 */
+/* 13 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
 Object.defineProperty(exports, "__esModule", {
-    value: true
+  value: true
 });
+exports.loadData = undefined;
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
@@ -332,6 +362,8 @@ var _actions = __webpack_require__(3);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
+function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
+
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
@@ -339,103 +371,120 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
 var NewsList = function (_Component) {
-    _inherits(NewsList, _Component);
+  _inherits(NewsList, _Component);
 
-    function NewsList(props) {
-        _classCallCheck(this, NewsList);
+  function NewsList(props) {
+    _classCallCheck(this, NewsList);
 
-        var _this = _possibleConstructorReturn(this, (NewsList.__proto__ || Object.getPrototypeOf(NewsList)).call(this, props));
+    var _this = _possibleConstructorReturn(this, (NewsList.__proto__ || Object.getPrototypeOf(NewsList)).call(this, props));
 
-        _this.state = {
-            upvotedItems: []
-        };
-        return _this;
+    _this.state = {
+      upvotedItems: []
+    };
+    return _this;
+  }
+
+  _createClass(NewsList, [{
+    key: "componentDidMount",
+    value: function componentDidMount() {
+      this.props.fetchNews();
+      //check if any items exist in localStorage
+      this.setState({
+        upvotedItems: Object.keys(window.localStorage)
+      });
     }
 
-    _createClass(NewsList, [{
-        key: 'componentDidMount',
-        value: function componentDidMount() {
-            this.props.fetchNews();
-        }
-    }, {
-        key: 'renderNews',
-        value: function renderNews() {
-            console.log(this.props);
-            return this.props.news.map(function (news) {
-                return _react2.default.createElement(
-                    'li',
-                    null,
-                    news.title
-                );
-            });
-        }
-    }, {
-        key: 'render',
-        value: function render() {
-            return _react2.default.createElement(
-                'div',
-                null,
-                'Hellooo',
-                _react2.default.createElement(
-                    'ul',
-                    null,
-                    this.renderNews()
-                )
-            );
-        }
-    }]);
+    //set upvotes items in local storage
 
-    return NewsList;
+  }, {
+    key: "upvote",
+    value: function upvote(item) {
+      if (window !== undefined) {
+        var keys = this.state.upvotedItems;
+        if (!keys.includes(item.objectID)) {
+          window.localStorage.setItem(item.objectID, item.title);
+          this.setState({
+            upvotedItems: [].concat(_toConsumableArray(this.state.upvotedItems), [item.objectID])
+          });
+        } else {
+          var newState = this.state.upvotedItems.filter(function (state) {
+            return state !== item.objectID;
+          });
+          this.setState({
+            upvotedItems: newState
+          });
+          window.localStorage.removeItem(item.objectID);
+        }
+      }
+    }
+  }, {
+    key: "renderNews",
+    value: function renderNews() {
+      var _this2 = this;
+
+      return this.props.news.map(function (item) {
+        return _react2.default.createElement(
+          "li",
+          { key: item.objectID },
+          _react2.default.createElement(
+            "span",
+            {
+              style: {
+                color: _this2.state.upvotedItems !== undefined && _this2.state.upvotedItems.includes(item.objectID) ? "orange" : "black"
+              },
+              onClick: function onClick() {
+                return _this2.upvote(item);
+              },
+              className: "hn-upvote-btn" },
+            "up"
+          ),
+          item.title
+        );
+      });
+    }
+  }, {
+    key: "render",
+    value: function render() {
+      return _react2.default.createElement(
+        "div",
+        null,
+        "Hellooo",
+        _react2.default.createElement(
+          "ul",
+          null,
+          this.renderNews()
+        )
+      );
+    }
+  }]);
+
+  return NewsList;
 }(_react.Component);
 
 function mapStateToProps(state) {
-    return {
-        news: state.news
-    };
+  return {
+    news: state.news
+  };
 }
 
+function loadData(store) {
+  return store.dispatch((0, _actions.fetchNews)());
+}
+
+exports.loadData = loadData;
 exports.default = (0, _reactRedux.connect)(mapStateToProps, { fetchNews: _actions.fetchNews })(NewsList);
 
 /***/ }),
-/* 13 */
+/* 14 */
 /***/ (function(module, exports) {
 
 module.exports = require("axios");
 
 /***/ }),
-/* 14 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-    value: true
-});
-
-var _redux = __webpack_require__(4);
-
-var _reduxThunk = __webpack_require__(15);
-
-var _reduxThunk2 = _interopRequireDefault(_reduxThunk);
-
-var _reducers = __webpack_require__(16);
-
-var _reducers2 = _interopRequireDefault(_reducers);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-exports.default = function () {
-    var store = (0, _redux.createStore)(_reducers2.default, {}, (0, _redux.applyMiddleware)(_reduxThunk2.default));
-
-    return store;
-};
-
-/***/ }),
 /* 15 */
 /***/ (function(module, exports) {
 
-module.exports = require("redux-thunk");
+module.exports = require("serialize-javascript");
 
 /***/ }),
 /* 16 */
@@ -448,9 +497,44 @@ Object.defineProperty(exports, "__esModule", {
     value: true
 });
 
-var _redux = __webpack_require__(4);
+var _redux = __webpack_require__(5);
 
-var _newsReducers = __webpack_require__(17);
+var _reduxThunk = __webpack_require__(17);
+
+var _reduxThunk2 = _interopRequireDefault(_reduxThunk);
+
+var _reducers = __webpack_require__(18);
+
+var _reducers2 = _interopRequireDefault(_reducers);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+exports.default = function () {
+    var store = (0, _redux.createStore)(_reducers2.default, {}, (0, _redux.applyMiddleware)(_reduxThunk2.default));
+
+    return store;
+};
+
+/***/ }),
+/* 17 */
+/***/ (function(module, exports) {
+
+module.exports = require("redux-thunk");
+
+/***/ }),
+/* 18 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+var _redux = __webpack_require__(5);
+
+var _newsReducers = __webpack_require__(19);
 
 var _newsReducers2 = _interopRequireDefault(_newsReducers);
 
@@ -461,7 +545,7 @@ exports.default = (0, _redux.combineReducers)({
 });
 
 /***/ }),
-/* 17 */
+/* 19 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";

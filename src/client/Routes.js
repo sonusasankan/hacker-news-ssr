@@ -1,13 +1,16 @@
 import React from 'react';
-import { Route } from 'react-router-dom';
 import Home from './components/Home.js';
-import NewsList from './components/NewsList.js';
+import NewsList, { loadData } from './components/NewsList.js';
 
-export default () => {
-    return(
-        <div>
-            <Route exact path="/" component={Home}/>
-            <Route exact path="/news" component={NewsList}/>
-        </div>
-    )
-}
+export default [
+    {
+        path: "/",
+        component: Home,
+        exact: true
+    },
+    {
+        loadData,
+        path: "/news",
+        component: NewsList
+    }
+]
