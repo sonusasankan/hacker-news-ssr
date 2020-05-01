@@ -84,7 +84,7 @@ var _react = __webpack_require__(0);
 
 var _react2 = _interopRequireDefault(_react);
 
-var _NewsList = __webpack_require__(13);
+var _NewsList = __webpack_require__(12);
 
 var _NewsList2 = _interopRequireDefault(_NewsList);
 
@@ -115,7 +115,7 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.fetchNews = exports.FETCH_NEWS = undefined;
 
-var _axios = __webpack_require__(15);
+var _axios = __webpack_require__(14);
 
 var _axios2 = _interopRequireDefault(_axios);
 
@@ -195,7 +195,7 @@ var _renderer = __webpack_require__(9);
 
 var _renderer2 = _interopRequireDefault(_renderer);
 
-var _createStore = __webpack_require__(17);
+var _createStore = __webpack_require__(16);
 
 var _createStore2 = _interopRequireDefault(_createStore);
 
@@ -270,7 +270,7 @@ var _reactRedux = __webpack_require__(2);
 
 var _reactRouterConfig = __webpack_require__(4);
 
-var _serializeJavascript = __webpack_require__(16);
+var _serializeJavascript = __webpack_require__(15);
 
 var _serializeJavascript2 = _interopRequireDefault(_serializeJavascript);
 
@@ -308,8 +308,7 @@ module.exports = require("react-dom/server");
 module.exports = require("react-router-dom");
 
 /***/ }),
-/* 12 */,
-/* 13 */
+/* 12 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -328,7 +327,7 @@ var _react2 = _interopRequireDefault(_react);
 
 var _reactRedux = __webpack_require__(2);
 
-var _moment = __webpack_require__(14);
+var _moment = __webpack_require__(13);
 
 var _moment2 = _interopRequireDefault(_moment);
 
@@ -580,25 +579,25 @@ exports.loadData = loadData;
 exports.default = (0, _reactRedux.connect)(mapStateToProps, { fetchNews: _actions.fetchNews })(NewsList);
 
 /***/ }),
-/* 14 */
+/* 13 */
 /***/ (function(module, exports) {
 
 module.exports = require("moment");
 
 /***/ }),
-/* 15 */
+/* 14 */
 /***/ (function(module, exports) {
 
 module.exports = require("axios");
 
 /***/ }),
-/* 16 */
+/* 15 */
 /***/ (function(module, exports) {
 
 module.exports = require("serialize-javascript");
 
 /***/ }),
-/* 17 */
+/* 16 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -610,11 +609,11 @@ Object.defineProperty(exports, "__esModule", {
 
 var _redux = __webpack_require__(5);
 
-var _reduxThunk = __webpack_require__(18);
+var _reduxThunk = __webpack_require__(17);
 
 var _reduxThunk2 = _interopRequireDefault(_reduxThunk);
 
-var _reducers = __webpack_require__(19);
+var _reducers = __webpack_require__(18);
 
 var _reducers2 = _interopRequireDefault(_reducers);
 
@@ -627,13 +626,13 @@ exports.default = function () {
 };
 
 /***/ }),
-/* 18 */
+/* 17 */
 /***/ (function(module, exports) {
 
 module.exports = require("redux-thunk");
 
 /***/ }),
-/* 19 */
+/* 18 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -645,7 +644,7 @@ Object.defineProperty(exports, "__esModule", {
 
 var _redux = __webpack_require__(5);
 
-var _newsReducers = __webpack_require__(20);
+var _newsReducers = __webpack_require__(19);
 
 var _newsReducers2 = _interopRequireDefault(_newsReducers);
 
@@ -657,7 +656,7 @@ exports.default = (0, _redux.combineReducers)({
 });
 
 /***/ }),
-/* 20 */
+/* 19 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
