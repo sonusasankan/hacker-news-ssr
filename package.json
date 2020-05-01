@@ -10,7 +10,7 @@
     "dev:build-server": "webpack --config webpack.server.js --watch",
     "dev:build-client": "webpack --config webpack.client.js --watch",
     "test": "jest",
-    "heroku-postbuild": "cd public"
+    "heroku-postbuild": "webpack --config webpack.client.js"
   },
   "author": "",
   "license": "ISC",
