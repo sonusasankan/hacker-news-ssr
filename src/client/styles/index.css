@@ -32,7 +32,12 @@ ul>li{
     padding: 10px 1rem;
     color:  var(--color-light);
     font-size: 0.9rem;
-    line-height: 1.5rem;
+    line-height: 1.6rem;
+    display: -webkit-box;
+    display: flex;
+    -webkit-box-orient: vertical;
+    -webkit-box-direction: normal;
+            flex-direction: column;
 }
 span{
     display: inline-block;
@@ -43,7 +48,7 @@ span{
 ul>li:nth-child(2n){
     background-color: var(--secondary--bg-color);
 }
-ul>li span:first-child{
+ul>li>span:first-child{
     min-width: 40px;
 }
 ul>li a{
@@ -55,6 +60,16 @@ ul>li a span{
 }
 ul>li p span:first-child{
     min-width: 0;
+}
+ul>li p:first-child span:first-child{
+    margin-right: 1rem;
+    min-width: 50px;
+}
+ul>li p:first-child span:nth-child(2){
+    min-width: 40px;
+}
+ul>li p:first-child{
+    order: 2;
 }
 .hn-upvote-btn{
     margin-right: 0.6rem;
@@ -100,9 +115,12 @@ ul>li p span:first-child{
     }
     ul>li{
         padding: 10px 2rem;
+        -webkit-box-orient: horizontal;
+        -webkit-box-direction: normal;
+                flex-direction: row;
     }
-    ul>li p{
-        display: inline-block;
+    ul>li p:first-child{
+        order: 0;
     }
     .hn-upvote-btn{
         margin: 0 0.8rem;
