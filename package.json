@@ -9,8 +9,8 @@
     "dev:server": "nodemon --watch build --exec \"node build/bundle.js\"",
     "dev:build-server": "webpack --config webpack.server.js --watch",
     "dev:build-client": "webpack --config webpack.client.js --watch",
-    "heroku-postbuild": "webpack --config webpack.client.js"
-
+    "test": "jest",
+    "heroku-postbuild": "cd public"
   },
   "author": "",
   "license": "ISC",
@@ -47,5 +47,11 @@
     "webpack-dev-server": "2.8.2",
     "webpack-merge": "4.1.0",
     "webpack-node-externals": "1.6.0"
+  },
+  "devDependencies": {
+    "enzyme": "^3.11.0",
+    "enzyme-adapter-react-16": "^1.15.2",
+    "jest": "^25.5.3",
+    "jest-dom": "^4.0.0"
   }
 }

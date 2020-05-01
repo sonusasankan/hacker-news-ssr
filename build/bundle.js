@@ -84,10 +84,6 @@ var _react = __webpack_require__(0);
 
 var _react2 = _interopRequireDefault(_react);
 
-var _Home = __webpack_require__(12);
-
-var _Home2 = _interopRequireDefault(_Home);
-
 var _NewsList = __webpack_require__(13);
 
 var _NewsList2 = _interopRequireDefault(_NewsList);
@@ -95,13 +91,10 @@ var _NewsList2 = _interopRequireDefault(_NewsList);
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 exports.default = [{
-    path: "/",
-    component: _Home2.default,
-    exact: true
-}, {
     loadData: _NewsList.loadData,
-    path: "/news",
-    component: _NewsList2.default
+    path: "/",
+    component: _NewsList2.default,
+    exact: true
 }];
 
 /***/ }),
@@ -155,11 +148,11 @@ var fetchNews = exports.fetchNews = function fetchNews(page) {
 
                             dispatch({
                                 type: FETCH_NEWS,
-                                payload: res
+                                payload: res,
+                                pages: res.nbPages
                             });
-                            console.log(true);
 
-                        case 5:
+                        case 4:
                         case 'end':
                             return _context.stop();
                     }
@@ -214,6 +207,8 @@ var _Routes2 = _interopRequireDefault(_Routes);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
+var port = process.env.PORT || 3000;
+
 var app = (0, _express2.default)();
 
 app.use(_express2.default.static('public'));
@@ -232,7 +227,7 @@ app.get('*', function (req, res) {
   });
 });
 
-app.listen(3000, function () {
+app.listen(port, function () {
   console.log('Listening on port 3000');
 });
 
@@ -313,44 +308,7 @@ module.exports = require("react-dom/server");
 module.exports = require("react-router-dom");
 
 /***/ }),
-/* 12 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-    value: true
-});
-
-var _react = __webpack_require__(0);
-
-var _react2 = _interopRequireDefault(_react);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-var Home = function Home() {
-    return _react2.default.createElement(
-        'main',
-        null,
-        _react2.default.createElement(
-            'section',
-            null,
-            'I\'m the Best Home component',
-            _react2.default.createElement(
-                'button',
-                { onClick: function onClick() {
-                        return console.log('clicked');
-                    } },
-                'Click me'
-            )
-        )
-    );
-};
-
-exports.default = Home;
-
-/***/ }),
+/* 12 */,
 /* 13 */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -395,8 +353,13 @@ var NewsList = function (_Component) {
     var _this = _possibleConstructorReturn(this, (NewsList.__proto__ || Object.getPrototypeOf(NewsList)).call(this, props));
 
     _this.state = {
-      upvotedItems: []
+      upvotedItems: [],
+      hiddenItems: [],
+      page: 1
     };
+    _this.handlePaginationNext = _this.handlePaginationNext.bind(_this);
+    _this.handlePaginationPrev = _this.handlePaginationPrev.bind(_this);
+
     return _this;
   }
 
@@ -406,7 +369,8 @@ var NewsList = function (_Component) {
       this.props.fetchNews();
       //check if any items exist in localStorage
       this.setState({
-        upvotedItems: Object.keys(window.localStorage)
+        upvotedItems: Object.keys(window.localStorage),
+        hiddenItems: JSON.parse(window.localStorage.getItem('hidden')) || []
       });
     }
 
@@ -433,6 +397,25 @@ var NewsList = function (_Component) {
         }
       }
     }
+
+    //hide upvotedItems
+
+  }, {
+    key: "hideItems",
+    value: function hideItems(item) {
+      if (window !== undefined) {
+        var keys = this.state.hiddenItems;
+        if (!keys.includes(item.objectID)) {
+          this.setState({
+            hiddenItems: [].concat(_toConsumableArray(this.state.hiddenItems), [item.objectID])
+          });
+          window.localStorage.setItem('hidden', JSON.stringify([].concat(_toConsumableArray(this.state.hiddenItems), [item.objectID])));
+        }
+      }
+    }
+
+    //populate domain name 
+
   }, {
     key: "getDomain",
     value: function getDomain(url) {
@@ -442,63 +425,113 @@ var NewsList = function (_Component) {
       }
     }
   }, {
-    key: "renderNews",
-    value: function renderNews() {
+    key: "handlePaginationNext",
+    value: function handlePaginationNext() {
       var _this2 = this;
 
-      return this.props.news.filter(function (item) {
+      var totalPages = this.props.pages;
+      this.setState({
+        page: this.state.page++ < totalPages ? this.state.page++ : 1
+      }, function () {
+        return _this2.props.fetchNews(_this2.state.page);
+      });
+    }
+  }, {
+    key: "handlePaginationPrev",
+    value: function handlePaginationPrev() {
+      var _this3 = this;
+
+      var totalPages = this.props.pages;
+      this.setState({
+        page: this.state.page-- > 0 ? this.state.page-- : 1
+      }, function () {
+        return _this3.props.fetchNews(_this3.state.page);
+      });
+    }
+  }, {
+    key: "renderNews",
+    value: function renderNews() {
+      var _this4 = this;
+
+      return this.props.news.hits.filter(function (item) {
         return item.title !== null && item.url !== null && item.title !== '';
+      }).filter(function (item) {
+        return !_this4.state.hiddenItems.includes(item.objectID);
       }).map(function (item) {
         return _react2.default.createElement(
           "li",
           { key: item.objectID },
           _react2.default.createElement(
-            "span",
-            { className: "color-dark" },
-            item.num_comments !== null ? item.num_comments : 0
-          ),
-          _react2.default.createElement(
-            "span",
-            { className: "color-dark" },
-            item.points
-          ),
-          _react2.default.createElement("span", {
-            style: {
-              borderBottomColor: _this2.state.upvotedItems !== undefined && _this2.state.upvotedItems.includes(item.objectID) ? "#ff6600" : "rgb(202, 202, 201)"
-            },
-            onClick: function onClick() {
-              return _this2.upvote(item);
-            },
-            className: "hn-upvote-btn" }),
-          _react2.default.createElement(
-            "a",
-            { className: "color-dark", href: item.url },
-            item.title,
+            "p",
+            null,
             _react2.default.createElement(
               "span",
-              null,
-              "(",
-              _this2.getDomain(item.url),
-              ")"
+              { className: "color-dark" },
+              item.num_comments !== null ? item.num_comments : 0
+            ),
+            _react2.default.createElement(
+              "span",
+              { className: "color-dark" },
+              item.points
             )
           ),
-          "by",
           _react2.default.createElement(
-            "span",
-            { className: "color-dark" },
-            item._highlightResult.author.value
+            "p",
+            null,
+            _react2.default.createElement("span", {
+              style: {
+                borderBottomColor: _this4.state.upvotedItems !== undefined && _this4.state.upvotedItems.includes(item.objectID) ? "#ff6600" : "rgb(202, 202, 201)"
+              },
+              onClick: function onClick() {
+                return _this4.upvote(item);
+              },
+              className: "hn-upvote-btn" }),
+            _react2.default.createElement(
+              "a",
+              { className: "color-dark", href: item.url },
+              item.title,
+              _react2.default.createElement(
+                "span",
+                null,
+                "(",
+                _this4.getDomain(item.url),
+                ")"
+              )
+            )
           ),
-          (0, _moment2.default)(Date.now()).diff((0, _moment2.default)(item.created_at), 'days'),
-          ' ',
-          "days ago"
+          _react2.default.createElement(
+            "p",
+            null,
+            _react2.default.createElement(
+              "span",
+              { className: "color-light" },
+              "by"
+            ),
+            _react2.default.createElement(
+              "span",
+              { className: "color-dark" },
+              item._highlightResult.author.value
+            ),
+            (0, _moment2.default)(Date.now()).diff((0, _moment2.default)(item.created_at), 'days'),
+            ' ',
+            "days ago",
+            _react2.default.createElement(
+              "span",
+              {
+                className: "hn-hide-btn color-dark",
+                onClick: function onClick() {
+                  return _this4.hideItems(item);
+                }
+              },
+              "[ hide ]"
+            )
+          )
         );
       });
     }
   }, {
     key: "render",
     value: function render() {
-      var _this3 = this;
-
       return _react2.default.createElement(
         "main",
         null,
@@ -509,10 +542,21 @@ var NewsList = function (_Component) {
         ),
         _react2.default.createElement(
           "button",
-          { onClick: function onClick() {
-              return _this3.props.fetchNews(2);
-            } },
-          "Next page"
+          { className: "hn-pagination", onClick: this.handlePaginationPrev },
+          "Prev"
+        ),
+        _react2.default.createElement(
+          "button",
+          { className: "hn-pagination", onClick: this.handlePaginationNext },
+          "Next"
+        ),
+        _react2.default.createElement(
+          "span",
+          { className: "color-light" },
+          "page ",
+          this.state.page,
+          " / ",
+          this.props.pages
         )
       );
     }
@@ -523,7 +567,8 @@ var NewsList = function (_Component) {
 
 function mapStateToProps(state) {
   return {
-    news: state.news
+    news: state.news,
+    pages: state.news.nbPages
   };
 }
 
@@ -607,7 +652,8 @@ var _newsReducers2 = _interopRequireDefault(_newsReducers);
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 exports.default = (0, _redux.combineReducers)({
-    news: _newsReducers2.default
+    news: _newsReducers2.default,
+    pages: _newsReducers2.default.nbPages
 });
 
 /***/ }),
@@ -629,7 +675,7 @@ exports.default = function () {
 
     switch (action.type) {
         case _actions.FETCH_NEWS:
-            return action.payload.data.hits;
+            return action.payload.data;
         default:
             return state;
 

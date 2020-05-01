@@ -14,7 +14,7 @@ export const fetchNews = (page) => async dispatch => {
       })
     dispatch({
         type: FETCH_NEWS,
-        payload: res
+        payload: res,
+        pages: res.nbPages
     })
-    console.log(true)
 }

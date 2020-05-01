@@ -1,11 +1,11 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 
 const Home = () =>{
     return(
         <main>
             <section>
-                I'm the Best Home component
-                <button onClick={()=> console.log('clicked')}>Click me</button>
+                <Link to="/news">View all the News</Link>
             </section>
         </main>
     )
