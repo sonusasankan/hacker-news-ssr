@@ -136,7 +136,7 @@ var fetchNews = exports.fetchNews = function fetchNews(page) {
                             _context.next = 2;
                             return (0, _axios2.default)({
                                 method: 'get',
-                                url: 'http://hn.algolia.com/api/v1/search',
+                                url: 'https://hn.algolia.com/api/v1/search',
                                 params: {
                                     //   tags: 'front_page',
                                     page: page
