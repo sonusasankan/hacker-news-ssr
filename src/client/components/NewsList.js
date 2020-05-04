@@ -20,19 +20,42 @@ class NewsList extends Component {
     this.props.fetchNews();
     //check if any items exist in localStorage
     this.setState({
-      upvotedItems: Object.keys(window.localStorage),
-      hiddenItems:  JSON.parse(window.localStorage.getItem('hidden')) || []
+      upvotedItems: JSON.parse(window.localStorage.getItem('upvotes')) || []
+      // hiddenItems:  JSON.parse(window.localStorage.getItem('hidden')) || []
     });
   }
 
+  getPoints(id){
+    let upvotes = this.state.upvotedItems
+    for(var i = 0; i < upvotes.length; i++) {
+    if (upvotes[i].id == id) {
+          return upvotes[i].points;
+      }
+  }
+  }
+
+  checkElement(id){
+    var found = false;
+    let upvotes = this.state.upvotedItems
+    for(var i = 0; i < upvotes.length; i++) {
+        console.log(id + ' : ' + upvotes[i].id)
+      if (upvotes[i].id == id) {
+            return found = true;
+        }
+    }
+  }
   //set upvotes items in local storage
   upvote(item) {
     if (window !== undefined) {
       let keys =  this.state.upvotedItems;
+      let newItem = {
+        id: item.objectID,
+        points: item.points + 1
+      }
       if(!keys.includes(item.objectID)){
-         window.localStorage.setItem(item.objectID, item.title);
+        window.localStorage.setItem('upvotes', JSON.stringify([...this.state.upvotedItems, newItem]));
          this.setState({
-            upvotedItems: [...this.state.upvotedItems, item.objectID]
+            upvotedItems: [...this.state.upvotedItems, newItem]
           });
       }else{
         let newState = this.state.upvotedItems.filter(state => state !== item.objectID);
@@ -91,12 +114,12 @@ class NewsList extends Component {
         <li key={item.objectID}>
           <p>
             <span className="color-dark">{item.num_comments !== null ? item.num_comments: 0}</span>
-            <span className="color-dark">{item.points}</span>
+            <span style={{color: this.getPoints(item.objectID)? '#ff6600': ''}} className="color-dark">{this.getPoints(item.objectID) || item.points}</span>
           </p>
           <p>
           <span
             style={{
-              borderBottomColor: this.state.upvotedItems !== undefined && this.state.upvotedItems.includes(item.objectID) ? "#ff6600" : "rgb(202, 202, 201)",
+              borderBottomColor: this.state.upvotedItems !== undefined && this.checkElement(item.objectID) ? "#ff6600" : "rgb(202, 202, 201)",
             }}
             onClick={() => this.upvote(item)}
             className="hn-upvote-btn">

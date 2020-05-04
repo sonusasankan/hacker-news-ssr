@@ -368,11 +368,32 @@ var NewsList = function (_Component) {
       this.props.fetchNews();
       //check if any items exist in localStorage
       this.setState({
-        upvotedItems: Object.keys(window.localStorage),
-        hiddenItems: JSON.parse(window.localStorage.getItem('hidden')) || []
+        upvotedItems: JSON.parse(window.localStorage.getItem('upvotes')) || []
+        // hiddenItems:  JSON.parse(window.localStorage.getItem('hidden')) || []
       });
     }
-
+  }, {
+    key: "getPoints",
+    value: function getPoints(id) {
+      var upvotes = this.state.upvotedItems;
+      for (var i = 0; i < upvotes.length; i++) {
+        if (upvotes[i].id == id) {
+          return upvotes[i].points;
+        }
+      }
+    }
+  }, {
+    key: "checkElement",
+    value: function checkElement(id) {
+      var found = false;
+      var upvotes = this.state.upvotedItems;
+      for (var i = 0; i < upvotes.length; i++) {
+        console.log(id + ' : ' + upvotes[i].id);
+        if (upvotes[i].id == id) {
+          return found = true;
+        }
+      }
+    }
     //set upvotes items in local storage
 
   }, {
@@ -380,10 +401,14 @@ var NewsList = function (_Component) {
     value: function upvote(item) {
       if (window !== undefined) {
         var keys = this.state.upvotedItems;
+        var newItem = {
+          id: item.objectID,
+          points: item.points + 1
+        };
         if (!keys.includes(item.objectID)) {
-          window.localStorage.setItem(item.objectID, item.title);
+          window.localStorage.setItem('upvotes', JSON.stringify([].concat(_toConsumableArray(this.state.upvotedItems), [newItem])));
           this.setState({
-            upvotedItems: [].concat(_toConsumableArray(this.state.upvotedItems), [item.objectID])
+            upvotedItems: [].concat(_toConsumableArray(this.state.upvotedItems), [newItem])
           });
         } else {
           var newState = this.state.upvotedItems.filter(function (state) {
@@ -470,8 +495,8 @@ var NewsList = function (_Component) {
             ),
             _react2.default.createElement(
               "span",
-              { className: "color-dark" },
-              item.points
+              { style: { color: _this4.getPoints(item.objectID) ? '#ff6600' : '' }, className: "color-dark" },
+              _this4.getPoints(item.objectID) || item.points
             )
           ),
           _react2.default.createElement(
@@ -479,7 +504,7 @@ var NewsList = function (_Component) {
             null,
             _react2.default.createElement("span", {
               style: {
-                borderBottomColor: _this4.state.upvotedItems !== undefined && _this4.state.upvotedItems.includes(item.objectID) ? "#ff6600" : "rgb(202, 202, 201)"
+                borderBottomColor: _this4.state.upvotedItems !== undefined && _this4.checkElement(item.objectID) ? "#ff6600" : "rgb(202, 202, 201)"
               },
               onClick: function onClick() {
                 return _this4.upvote(item);
