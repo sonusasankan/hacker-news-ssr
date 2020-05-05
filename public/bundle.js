@@ -55077,6 +55077,8 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.loadData = undefined;
 
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 var _react = __webpack_require__(9);
@@ -55124,10 +55126,11 @@ var NewsList = function (_Component) {
     key: "componentDidMount",
     value: function componentDidMount() {
       this.props.fetchNews();
+
       //check if any items exist in localStorage
       this.setState({
-        upvotedItems: JSON.parse(window.localStorage.getItem('upvotes')) || []
-        // hiddenItems:  JSON.parse(window.localStorage.getItem('hidden')) || []
+        upvotedItems: JSON.parse(window.localStorage.getItem('upvotes')) || [],
+        hiddenItems: JSON.parse(window.localStorage.getItem('hidden')) || []
       });
     }
   }, {
@@ -55141,42 +55144,47 @@ var NewsList = function (_Component) {
       }
     }
   }, {
-    key: "checkElement",
-    value: function checkElement(id) {
+    key: "checkUpvotedElement",
+    value: function checkUpvotedElement(id) {
       var found = false;
       var upvotes = this.state.upvotedItems;
       for (var i = 0; i < upvotes.length; i++) {
-        console.log(id + ' : ' + upvotes[i].id);
         if (upvotes[i].id == id) {
           return found = true;
         }
       }
     }
+
     //set upvotes items in local storage
 
   }, {
     key: "upvote",
     value: function upvote(item) {
-      if (window !== undefined) {
-        var keys = this.state.upvotedItems;
-        var newItem = {
-          id: item.objectID,
-          points: item.points + 1
-        };
-        if (!keys.includes(item.objectID)) {
-          window.localStorage.setItem('upvotes', JSON.stringify([].concat(_toConsumableArray(this.state.upvotedItems), [newItem])));
-          this.setState({
-            upvotedItems: [].concat(_toConsumableArray(this.state.upvotedItems), [newItem])
-          });
-        } else {
-          var newState = this.state.upvotedItems.filter(function (state) {
-            return state !== item.objectID;
-          });
-          this.setState({
-            upvotedItems: newState
-          });
-          window.localStorage.removeItem(item.objectID);
-        }
+      var upvotedItems = [].concat(_toConsumableArray(this.state.upvotedItems));
+      var upvotedId = upvotedItems.findIndex(function (element) {
+        return element.id == item.objectID;
+      });
+      var newItem = {
+        id: item.objectID,
+        points: item.points + 1
+      };
+
+      if (upvotedItems.some(function (key) {
+        return key.id === item.objectID;
+      })) {
+        upvotedItems[upvotedId] = _extends({}, upvotedItems[upvotedId], { points: upvotedItems[upvotedId].points + 1 });
+        this.setState(function (prevState, props) {
+          return {
+            upvotedItems: upvotedItems
+          };
+        });
+        window.localStorage.setItem('upvotes', JSON.stringify(upvotedItems));
+      } else {
+        this.setState({
+          upvotedItems: [].concat(_toConsumableArray(upvotedItems), [newItem])
+        }, function () {
+          window.localStorage.setItem('upvotes', JSON.stringify([].concat(_toConsumableArray(upvotedItems), [newItem])));
+        });
       }
     }
 
@@ -55262,7 +55270,7 @@ var NewsList = function (_Component) {
             null,
             _react2.default.createElement("span", {
               style: {
-                borderBottomColor: _this4.state.upvotedItems !== undefined && _this4.checkElement(item.objectID) ? "#ff6600" : "rgb(202, 202, 201)"
+                borderBottomColor: _this4.state.upvotedItems !== undefined && _this4.checkUpvotedElement(item.objectID) ? "#ff6600" : "rgb(202, 202, 201)"
               },
               onClick: function onClick() {
                 return _this4.upvote(item);

@@ -18,10 +18,11 @@ class NewsList extends Component {
   }
   componentDidMount() {
     this.props.fetchNews();
+
     //check if any items exist in localStorage
     this.setState({
-      upvotedItems: JSON.parse(window.localStorage.getItem('upvotes')) || []
-      // hiddenItems:  JSON.parse(window.localStorage.getItem('hidden')) || []
+      upvotedItems: JSON.parse(window.localStorage.getItem('upvotes')) || [],
+      hiddenItems:  JSON.parse(window.localStorage.getItem('hidden')) || []
     });
   }
 
@@ -34,36 +35,43 @@ class NewsList extends Component {
   }
   }
 
-  checkElement(id){
+  checkUpvotedElement(id){
     var found = false;
     let upvotes = this.state.upvotedItems
     for(var i = 0; i < upvotes.length; i++) {
-        console.log(id + ' : ' + upvotes[i].id)
       if (upvotes[i].id == id) {
             return found = true;
         }
     }
   }
+
   //set upvotes items in local storage
   upvote(item) {
-    if (window !== undefined) {
-      let keys =  this.state.upvotedItems;
-      let newItem = {
-        id: item.objectID,
-        points: item.points + 1
+    let upvotedItems = [...this.state.upvotedItems];
+    let upvotedId = upvotedItems.findIndex(element => element.id == item.objectID )
+    let newItem = {
+      id: item.objectID,
+      points: item.points + 1
+    }
+    
+
+    if(upvotedItems.some(key => key.id === item.objectID)){
+      upvotedItems[upvotedId] = {...upvotedItems[upvotedId], points: upvotedItems[upvotedId].points + 1}
+      this.setState(function(prevState, props){
+        return {
+          upvotedItems: upvotedItems
       }
-      if(!keys.includes(item.objectID)){
-        window.localStorage.setItem('upvotes', JSON.stringify([...this.state.upvotedItems, newItem]));
-         this.setState({
-            upvotedItems: [...this.state.upvotedItems, newItem]
-          });
-      }else{
-        let newState = this.state.upvotedItems.filter(state => state !== item.objectID);
-        this.setState({
-            upvotedItems: newState
-        }) 
-        window.localStorage.removeItem(item.objectID);
-      }
+     });
+      window.localStorage.setItem('upvotes', JSON.stringify(upvotedItems));
+
+    } else{
+      this.setState({
+        upvotedItems: [...upvotedItems, newItem] 
+      },
+        ()=>{
+          window.localStorage.setItem('upvotes', JSON.stringify([...upvotedItems, newItem]));
+        }
+      )
     }
   }
 
@@ -119,7 +127,7 @@ class NewsList extends Component {
           <p>
           <span
             style={{
-              borderBottomColor: this.state.upvotedItems !== undefined && this.checkElement(item.objectID) ? "#ff6600" : "rgb(202, 202, 201)",
+              borderBottomColor: this.state.upvotedItems !== undefined && this.checkUpvotedElement(item.objectID) ? "#ff6600" : "rgb(202, 202, 201)",
             }}
             onClick={() => this.upvote(item)}
             className="hn-upvote-btn">
